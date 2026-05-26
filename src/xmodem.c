@@ -18,7 +18,7 @@
  * gcc -o xmodem xmodem.c
  */
 
-#define SERIAL_PORT "/dev/ttyUSB0"
+unsigned char SERIAL_PORT[32];//= "/dev/ttyUSBx";
 #define BAUDRATE    B115200       // Altere para B9600, B57600, etc., se necessário
 
 
@@ -229,7 +229,7 @@ unsigned char transmitFile(){
     unsigned char retrans=0;
     int fd_serial = open(SERIAL_PORT, O_RDWR | O_NOCTTY);
     if (fd_serial < 0) {
-        perror("Erro ao abrir a porta serial " SERIAL_PORT);
+        printf("Erro ao abrir a porta serial [%s]",SERIAL_PORT);
         return EXIT_FAILURE;
     }
     // 3. Configura os parâmetros da serial
@@ -264,12 +264,18 @@ unsigned char transmitFile(){
     close(fd_serial);
 }
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Uso: %s <arquivo_binario>\n", argv[0]);
+    printf("System PDS317 - xmodem app copyright (c)2026 pdsilva aka(pgordao)\n");
+    printf("This xmodem sends a number 3 to start the xmodem protocol in PDS317\n");
+    printf("Yes! I know this is not what xmodem protocol does, but it is as it is!\n");
+    printf("Accept hurt a litle bit less!!!\n\n\n");
+    if (argc < 3) {
+        fprintf(stderr, "Uso: %s <arquivo_binario> </dev/Serial port>\n", argv[0]);
         return EXIT_FAILURE;
     }
     readFile(argv[1]);
-    printf("File loaded...[0x%02X] blocos to transmit\n",readFile(argv[1]));
+    printf("File loaded...[0x%02X] blocos to transmit\n",readFile(argv[1])+1);
+    memcpy(SERIAL_PORT,argv[2],strlen(argv[2]));
+    printf("Transminting [%s] to [%s]\n",argv[1],SERIAL_PORT);
     transmitFile();
     return EXIT_SUCCESS;
 }
